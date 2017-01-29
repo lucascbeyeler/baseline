@@ -1,6 +1,6 @@
 galaxy_info:
   author: Lucas Costa Beyeler
-  description: Developer and SysAdmin
+  description: Default playbook to prepare you environment to receive any kind of service
   company: 4Linux - Open Software Specialists
   license: GPLv3
   min_ansible_version: 2.2
