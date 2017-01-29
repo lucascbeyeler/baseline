@@ -1,0 +1,23 @@
+# Some Linux distros, like CentOS/Red Hat already use the systemd as default
+# For those linux, we will use the ansible module "systemd", and check if the
+# distro has support for the systemd. If not, we will fallback to the good old
+# "upstart/systemv"
+
+- name: Enabling all services - Systemd way
+  systemd:
+    daemon_reload: yes
+    state: started
+    enabled: yes
+    name: '{{ item }}'
+  ignore_errors: yes
+  with_items:
+    - "{{ services }}"
+
+- name: Enabling all services - Upstart/System V way
+  service:
+    name: '{{ item }}'
+    state: started
+    enabled: yes
+  ignore_errors: yes
+  with_items:
+    - "{{ services }}"

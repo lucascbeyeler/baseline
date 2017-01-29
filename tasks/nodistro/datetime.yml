@@ -1,0 +1,20 @@
+# Change the timezone and configure the NTP service for use. The start/enable
+# will be handle by a different file (service.yml).
+- name: Change the TimeZone for America/Sao_Paulo
+  timezone: name=America/Sao_Paulo
+
+- name: Uploading the new NTP config file
+  copy:
+    src: ntp.conf
+    dest: /etc/ntp.conf
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Creating the drift file for the NTP service
+  file:
+    path: /etc/drift
+    state: touch
+    owner: root
+    group: root
+    mode: 0640

@@ -1,0 +1,13 @@
+# Basic serve for you to install all the packages that will be on all hosts
+basic:
+  - vim
+  - sysstat
+  - unzip
+  - gcc
+  - sudo
+  - ntp
+  - ca-certificates
+
+# Service it's where you inform all the services that needs to be enabled
+services:
+  - ntp
