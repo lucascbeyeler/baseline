@@ -2,4 +2,6 @@
 - hosts: localhost
   remote_user: root
   roles:
-    - commons
+   - role: ansible-commons
+     hostname: warudo
+     domain: hollowbastion.com
