@@ -5,3 +5,4 @@
    - role: ansible-commons
      hostname: warudo
      domain: hollowbastion.com
+     timezone: America/Sao_Paulo
