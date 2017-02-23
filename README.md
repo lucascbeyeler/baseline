@@ -20,6 +20,31 @@ stdout_callback=skippy
 pipelining=True
 ```
 
+Install
+--------------
+ansible-commons is already in Ansible Galaxy, so the only thing you need to install this script in your machine is just use ansible-galaxy command:
+
+```
+ansible-galaxy install lucascbeyeler.commons
+```
+
+Update
+--------------
+When a new version of ansible-commons is released, you will need to run the install process again, but with the "-f" or "--force" parameter.
+
+```
+ansible-galaxy install -f lucascbeyeler.commons
+```
+
+Features
+--------------
+
+* Update the system and install some basic packages (like vim, unzip, ntp, and ca-certificates);
+* Configure a ntp client and change the timezone to America/Sao_Paulo;
+* Change the hostname and update the /etc/hosts to include 127.0.0.1 to answer when the hostname is resolved;
+* Enable some services, like ntp, to start during the boot (Upstart and SystemD);
+
+
 Role Variables
 --------------
 
