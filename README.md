@@ -50,6 +50,7 @@ Role Variables
 
 * **hostname:** set the hostname of your server **WITHOUT** the domain;
 * **domain:** set the domain for the server and the primary domain for your server;
+* **timezone:** inform the timezone the playbook should set in your server;
 
 Example Playbook
 ----------------
@@ -64,6 +65,7 @@ Including an example of how to use your role (for instance, with variables passe
      - role: lucascbeyeler.ansible-commons
        hostname: warudo
        domain: hollowbastion.com
+       timezone: America/Sao_Paulo
 ```
 
 License

@@ -1,7 +1,7 @@
 # Change the timezone and configure the NTP service for use. The start/enable
 # will be handle by a different file (service.yml).
-- name: Change the TimeZone for America/Sao_Paulo
-  timezone: name=America/Sao_Paulo
+- name: Change the TimeZone for {{ timezone }}
+  timezone: name={{ timezone }}
 
 - name: Uploading the new NTP config file
   copy:
