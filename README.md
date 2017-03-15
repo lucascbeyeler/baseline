@@ -62,7 +62,7 @@ Including an example of how to use your role (for instance, with variables passe
   become: yes
   become_method: sudo
   roles:
-     - role: lucascbeyeler.ansible-commons
+     - role: lucascbeyeler.commons
        hostname: warudo
        domain: hollowbastion.com
        timezone: America/Sao_Paulo
