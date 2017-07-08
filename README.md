@@ -5,8 +5,8 @@ Default playbook to prepare you environment to receive any kind of service
 
 [![Build Status](https://travis-ci.org/lucascbeyeler/ansible-commons.svg?branch=master)](https://travis-ci.org/lucascbeyeler/ansible-commons)
 ![Linux Distro](https://img.shields.io/badge/platform-CentOS%20%7C%20Red%20Hat%20%7C%20Ubuntu-blue.svg)
-![Branch](https://img.shields.io/badge/Branch-Master-red.svg)
-[![Ansible Version](https://img.shields.io/badge/Ansible-2.3.1.0-orange.svg)](https://www.ansible.com/)
+![Branch](https://img.shields.io/badge/Branch-Master-green.svg)
+[![Ansible Version](https://img.shields.io/badge/Ansible-2.3.1.0-green.svg)](https://www.ansible.com/)
 
 
 Requirements
