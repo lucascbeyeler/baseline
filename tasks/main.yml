@@ -10,18 +10,18 @@
 
 - name: Install the default packages for CentOS/RedHat System
   yum:
-    name: {{ centos }}
+    name: "{{ centos }}"
     state: present
 
 - name: Updating all the packages for CentOS/RedHat System
   yum:
-    name: *
+    name: "*"
     state: present
   when: ansible_os_family == "RedHat"
 
 - name: Install the default packages for the playbook
   package:
-    name: {{ multidist }}
+    name: "{{ multidist }}"
     state: present
 
 #
@@ -29,7 +29,7 @@
 ################################################################################
 - name: Changing the timezone
   timezone:
-    name: {{ timezone }}
+    name: "{{ timezone }}"
 
 - name: Configuring NTP Client
   copy:
@@ -51,7 +51,8 @@
 # Hostname and Network
 ################################################################################
 - name: Changing the hostname
-  hostname: name='{{ hostname }}.{{ domain }}'
+  hostname:
+    name: '{{ hostname }}.{{ domain }}'
 
 - name: Including the hostname in /etc/hosts
   lineinfile:
