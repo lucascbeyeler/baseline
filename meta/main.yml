@@ -1,0 +1,25 @@
+galaxy_info:
+  author: Lucas Costa Beyeler
+  description: Baseline playbook to update and install all the packages needed for a server
+  company: Beyeler
+  license: GPLv3
+  min_ansible_version: 2.3
+  github_branch: master
+  platforms:
+  - name: Ubuntu
+    versions:
+    - trusty
+    - xenial
+  - name: EL
+    versions:
+    - 6
+    - 7
+  - name: Debian
+    versions:
+    - wheezy
+    - jessie
+  galaxy_tags:
+    - baseline
+    - linux
+    - preparation
+dependencies: []
