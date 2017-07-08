@@ -1,7 +1,7 @@
-ansible-commons
+Baseline
 =========
 
-Default playbook to prepare you environment to receive any kind of service
+Baseline playbook to update and install all the packages needed for a server
 
 [![Build Status](https://travis-ci.org/lucascbeyeler/ansible-commons.svg?branch=master)](https://travis-ci.org/lucascbeyeler/ansible-commons)
 ![Linux Distro](https://img.shields.io/badge/platform-CentOS%20%7C%20Red%20Hat%20%7C%20Ubuntu-blue.svg)
@@ -12,24 +12,15 @@ Default playbook to prepare you environment to receive any kind of service
 Requirements
 ------------
 
-* [Ansible](https://github.com/ansible/ansible) 2.2.0 or superior. Less than this and you will have problems running Zimbra's Playbook. See ansible-modules-core Bug #4202
+* [Ansible](https://github.com/ansible/ansible) 2.3.1.0 or superior.
 
-* Configure de file /etc/ansible/ansible.cfg (create if don't exist) and set this options - not required if you using key and the ssh user is "root" already:
-```
-[defaults]
-host_key_checking=False
-stdout_callback=skippy
-
-[ssh_connection]
-pipelining=True
-```
 
 Install
 --------------
-ansible-commons is already in Ansible Galaxy, so the only thing you need to install this script in your machine is just use ansible-galaxy command:
+Baseline is already in Ansible Galaxy, so the only thing you need is to install this script in your machine is just use ansible-galaxy command:
 
 ```
-ansible-galaxy install lucascbeyeler.commons
+ansible-galaxy install lucascbeyeler.baseline
 ```
 
 Update
@@ -75,9 +66,11 @@ Including an example of how to use your role (for instance, with variables passe
 License
 -------
 
-GNU GENERAL PUBLIC LICENSE
+[![GNU GPL v3.0](http://www.gnu.org/graphics/gplv3-127x51.png)](http://www.gnu.org/licenses/gpl.html)
+
+View official GNU site <http://www.gnu.org/licenses/gpl.html>.
 
 Author Information
 ------------------
 
-https://github.com/lucascbeyeler
+* [Lucas Costa Beyeler](https://github.com/lucascbeyeler) - lucas.costab@outlook.com
