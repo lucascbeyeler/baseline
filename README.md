@@ -3,7 +3,7 @@ Baseline
 
 Baseline playbook to update and install all the packages needed for a server
 
-[![Build Status](https://travis-ci.org/lucascbeyeler/ansible-commons.svg?branch=master)](https://travis-ci.org/lucascbeyeler/ansible-commons)
+[![Build Status](https://travis-ci.org/lucascbeyeler/baseline.svg?branch=master)](https://travis-ci.org/lucascbeyeler/baseline)
 ![Linux Distro](https://img.shields.io/badge/platform-CentOS%20%7C%20Red%20Hat%20%7C%20Ubuntu-blue.svg)
 ![Branch](https://img.shields.io/badge/Branch-Master-green.svg)
 [![Ansible Version](https://img.shields.io/badge/Ansible-2.3.1.0-green.svg)](https://www.ansible.com/)
