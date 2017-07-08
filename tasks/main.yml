@@ -12,6 +12,7 @@
   yum:
     name: "{{ centos }}"
     state: present
+  when: ansible_os_family == "RedHat"
 
 - name: Updating all the packages for CentOS/RedHat System
   yum:
