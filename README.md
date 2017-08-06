@@ -66,6 +66,8 @@ Including an example of how to use your role (for instance, with variables passe
        hostname: warudo
        domain: hollowbastion.com
        timezone: America/Sao_Paulo
+       enable_hushlogin:
+       ssh_port: 8080
 ```
 
 License
