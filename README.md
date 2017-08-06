@@ -38,6 +38,9 @@ Features
 * Configure a ntp client and change the timezone to America/Sao_Paulo;
 * Change the hostname and update the /etc/hosts to include 127.0.0.1 to answer when the hostname is resolved;
 * Enable some services, like ntp, to start during the boot (Upstart and SystemD);
+* Including hushlogin to hide the MOTD;
+* Change the SSH default port;
+* Disable Root login throught SSH.
 
 
 Role Variables
@@ -46,6 +49,8 @@ Role Variables
 * **hostname:** set the hostname of your server **WITHOUT** the domain;
 * **domain:** set the domain for the server and the primary domain for your server;
 * **timezone:** inform the timezone the playbook should set in your server;
+* **enable_hushlogin:** enable hush login for all users inside your server;
+* **ssh_port:** define the default port for OpenSSH Server;
 
 Example Playbook
 ----------------
