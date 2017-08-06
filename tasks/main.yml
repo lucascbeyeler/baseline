@@ -78,3 +78,40 @@
     state: started
     enabled: yes
   ignore_errors: yes
+
+#
+# Creating .hushlogin inside all user's home
+################################################################################
+- name: Creating .hushlogin inside the /etc/skel
+  file:
+    path: /etc/skel/.hushlogin
+    state: touch
+    owner: root
+    group: root
+    mode: 0600
+  when: enable_hushlogin is defined
+
+- name: Creating .hushlogin inside users home
+  file:
+    path: ~/.hushlogin
+    state: touch
+    owner: root
+    group: root
+    mode: 0600
+  when: enable_hushlogin is defined
+
+#
+# Editing SSH for more security
+################################################################################
+- name: Modifing SSH's default port
+  lineinfile:
+    regexp: '^#Port 22'
+    line: 'Port {{ ssh_port }}'
+    state: present
+  when: ssh_port is defined
+
+- name: Disable SSH root login
+  lineinfile:
+    regexp: 'PermitRootLogin yes'
+    line: 'PermitRootLogin no'
+    state: present
