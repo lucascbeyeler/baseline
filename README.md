@@ -28,7 +28,7 @@ Update
 When a new version of ansible-commons is released, you will need to run the install process again, but with the "-f" or "--force" parameter.
 
 ```
-ansible-galaxy install -f lucascbeyeler.commons
+ansible-galaxy install -f lucascbeyeler.baseline
 ```
 
 Features
@@ -62,7 +62,7 @@ Including an example of how to use your role (for instance, with variables passe
   become: yes
   become_method: sudo
   roles:
-     - role: lucascbeyeler.commons
+     - role: lucascbeyeler.baseline
        hostname: warudo
        domain: hollowbastion.com
        timezone: America/Sao_Paulo
