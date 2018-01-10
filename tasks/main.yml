@@ -107,6 +107,7 @@
 ################################################################################
 - name: Modifing SSH's default port
   lineinfile:
+    path: /etc/ssh/sshd_config
     regexp: '^#Port 22'
     line: 'Port {{ ssh_port }}'
     state: present
@@ -114,6 +115,7 @@
 
 - name: Disable SSH root login
   lineinfile:
+    path: /etc/ssh/sshd_config
     regexp: 'PermitRootLogin yes'
     line: 'PermitRootLogin no'
     state: present
