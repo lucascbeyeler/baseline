@@ -12,7 +12,7 @@ Baseline playbook to update and install all the packages needed for a server
 Requirements
 ------------
 
-* [Ansible](https://github.com/ansible/ansible) 2.3.1.0 or superior.
+* [Ansible](https://github.com/ansible/ansible) 2.4.2.0 or superior.
 
 
 Install
