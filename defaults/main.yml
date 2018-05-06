@@ -8,6 +8,7 @@ multidist:
   - sysstat
   - sudo
   - ca-certificates
+  - git
 
 centos:
   - deltarpm
