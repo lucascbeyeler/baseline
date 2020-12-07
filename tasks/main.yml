@@ -15,6 +15,13 @@
     update_cache: yes
   when: ansible_os_family == "RedHat"
 
+- name: Install the default packages for Debian/Ubuntu System
+  yum:
+    name: "{{ debian }}"
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
 - name: Updating all the packages for CentOS/RedHat System
   yum:
     name: "*"
@@ -41,6 +48,7 @@
     owner: root
     group: root
     mode: 0640
+  when: ansible_os_family == "RedHat"
 
 - name: Creating the drift file for the NTP service
   file:
@@ -49,6 +57,7 @@
     owner: ntp
     group: ntp
     mode: 0640
+  when: ansible_os_family == "RedHat"
 
 #
 # Hostname and Network
@@ -71,12 +80,12 @@
     daemon_reload: yes
     state: started
     enabled: yes
-    name: "{{ 'ntp' if ansible_os_family == 'Debian' else 'ntpd' }}"
+    name: "{{ 'ntp' if ansible_os_family == 'Debian' else 'chronyd' }}"
   ignore_errors: yes
 
 - name: Enabling all services - Upstart/System V way
   service:
-    name: "{{ 'ntp' if ansible_os_family == 'Debian' else 'ntpd' }}"
+    name: "{{ 'ntp' if ansible_os_family == 'Debian' else 'chronyd' }}"
     state: started
     enabled: yes
   ignore_errors: yes

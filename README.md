@@ -6,13 +6,13 @@ Baseline playbook to update and install all the packages needed for a server
 [![Build Status](https://travis-ci.org/lucascbeyeler/baseline.svg?branch=master)](https://travis-ci.org/lucascbeyeler/baseline)
 ![Linux Distro](https://img.shields.io/badge/platform-CentOS%20%7C%20Red%20Hat%20%7C%20Ubuntu-blue.svg)
 ![Branch](https://img.shields.io/badge/Branch-Master-green.svg)
-[![Ansible Version](https://img.shields.io/badge/Ansible-2.3.1.0-green.svg)](https://www.ansible.com/)
+[![Ansible Version](https://img.shields.io/badge/Ansible-2.9.6.0-green.svg)](https://www.ansible.com/)
 
 
 Requirements
 ------------
 
-* [Ansible](https://github.com/ansible/ansible) 2.4.2.0 or superior.
+* [Ansible](https://github.com/ansible/ansible) 2.9.6 or superior.
 
 
 Install
@@ -35,7 +35,7 @@ Features
 --------------
 
 * Update the system and install some basic packages (like vim, unzip, ntp, and ca-certificates);
-* Configure a ntp client and change the timezone to America/Sao_Paulo;
+* Configure a ntp client and change the timezone to what you want;
 * Change the hostname and update the /etc/hosts to include 127.0.0.1 to answer when the hostname is resolved;
 * Enable some services, like ntp, to start during the boot (Upstart and SystemD);
 * Including hushlogin to hide the MOTD;
@@ -63,8 +63,8 @@ Including an example of how to use your role (for instance, with variables passe
   become_method: sudo
   roles:
      - role: lucascbeyeler.baseline
-       hostname: warudo
-       domain: hollowbastion.com
+       hostname: pikachu
+       domain: johto.com
        timezone: America/Sao_Paulo
        enable_hushlogin:
        ssh_port: 8080
@@ -80,4 +80,4 @@ View official GNU site <http://www.gnu.org/licenses/gpl.html>.
 Author Information
 ------------------
 
-* [Lucas Costa Beyeler](https://github.com/lucascbeyeler) - lucas.costab@outlook.com
+* [Lucas Costa Beyeler](https://github.com/lucascbeyeler) - sysdevbey@gmail.com

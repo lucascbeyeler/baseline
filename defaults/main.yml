@@ -4,14 +4,14 @@ multidist:
   - vim
   - wget
   - unzip
-  - ntp
   - sysstat
   - sudo
   - ca-certificates
   - git
 
+debian:
+  - ntp
+
 centos:
-  - deltarpm
-  - libselinux-python
-  - policycoreutils-python
+  - chrony
   - epel-release

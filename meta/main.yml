@@ -1,23 +1,21 @@
 galaxy_info:
   author: Lucas Costa Beyeler
   description: Baseline playbook to update and install all the packages needed for a server
-  company: Beyeler
+  company: Nook Inc
   license: GPLv3
-  min_ansible_version: 2.3
+  min_ansible_version: 2.9.6
   github_branch: master
   platforms:
   - name: Ubuntu
     versions:
-    - trusty
-    - xenial
+    - bionic
+    - focal
   - name: EL
     versions:
-    - 6
-    - 7
+    - 8
   - name: Debian
     versions:
-    - wheezy
-    - jessie
+    - buster
   galaxy_tags:
     - baseline
     - linux
