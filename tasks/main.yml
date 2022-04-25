@@ -122,9 +122,9 @@
     state: present
   when: ssh_port is defined
 
-- name: Disable SSH root login
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: 'PermitRootLogin yes'
-    line: 'PermitRootLogin no'
-    state: present
+# - name: Disable SSH root login
+#  lineinfile:
+#    path: /etc/ssh/sshd_config
+#    regexp: 'PermitRootLogin yes'
+#    line: 'PermitRootLogin no'
+#    state: present
