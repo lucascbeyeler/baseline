@@ -1,5 +1,4 @@
 version: 2.1
-orbs:
 jobs:
   ansible-test:
     docker:
@@ -10,10 +9,31 @@ jobs:
           name: Install Ansible
           command: pip install ansible
       - run:
+          name: Create ansible.cfg
+          command: printf '[defaults]\nroles_path=../' >ansible.cfg
+      - run:
           name: Run Ansible Playbook
-          command: ansible-playbook -i tests/inventory tests/test.yml
+          command: ansible-playbook -i tests/inventory tests/test.yml --syntax-check
+  deploy:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: Install Ansible Galaxy
+          command: pip install ansible-galaxy
+      - run:
+          name: Deploy to Ansible Galaxy
+          command: ansible-galaxy role import $(echo $CIRCLE_PROJECT_USERNAME)/$(echo $CIRCLE_PROJECT_REPONAME)
 workflows:
   version: 2
   build-and-test:
     jobs:
       - ansible-test
+  deploy-to-galaxy:
+    jobs:
+      - deploy:
+          context: ansible-galaxy
+          filters:
+            branches:
+              only: master
