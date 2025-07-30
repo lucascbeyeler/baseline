@@ -1,6 +1,6 @@
 version: 2.1
 jobs:
-  ansible-test:
+  ansible-galaxy:
     docker:
       - image: cimg/python:3.9
     steps:
@@ -14,24 +14,11 @@ jobs:
       - run:
           name: Run Ansible Playbook
           command: ansible-playbook -i tests/inventory tests/test.yml --syntax-check
-  deploy:
-    docker:
-      - image: cimg/python:3.9
-    steps:
-      - checkout
-      - run:
-          name: Install Ansible Galaxy
-          command: pip install ansible
       - run:
           name: Deploy to Ansible Galaxy
-          command: ansible-galaxy role import $(echo $CIRCLE_PROJECT_USERNAME)/$(echo $CIRCLE_PROJECT_REPONAME)
+          command: ansible-galaxy role import lucascbeyeler baseline
 workflows:
   version: 2
   build-and-test:
     jobs:
-      - ansible-test
-      - deploy:
-          context: ansible-galaxy
-          filters:
-            branches:
-              only: master
+      - ansible-galaxy
