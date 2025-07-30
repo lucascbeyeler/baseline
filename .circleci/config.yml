@@ -16,7 +16,7 @@ jobs:
           command: ansible-playbook -i tests/inventory tests/test.yml --syntax-check
       - run:
           name: Deploy to Ansible Galaxy
-          command: ansible-galaxy role import lucascbeyeler baseline
+          command: ansible-galaxy role import --api-key $GALAXY_API_KEY lucascbeyeler baseline
 workflows:
   version: 2
   build-and-test:
