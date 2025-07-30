@@ -1,0 +1,19 @@
+version: 2.1
+orbs:
+jobs:
+  ansible-test:
+    docker:
+      - image: cimg/python:3.9
+    steps:
+      - checkout
+      - run:
+          name: Install Ansible
+          command: pip install ansible
+      - run:
+          name: Run Ansible Playbook
+          command: ansible-playbook -i tests/inventory tests/test.yml
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - ansible-test
