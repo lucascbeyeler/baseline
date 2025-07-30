@@ -21,7 +21,7 @@ jobs:
       - checkout
       - run:
           name: Install Ansible Galaxy
-          command: pip install ansible-galaxy
+          command: pip install ansible
       - run:
           name: Deploy to Ansible Galaxy
           command: ansible-galaxy role import $(echo $CIRCLE_PROJECT_USERNAME)/$(echo $CIRCLE_PROJECT_REPONAME)
@@ -30,8 +30,6 @@ workflows:
   build-and-test:
     jobs:
       - ansible-test
-  deploy-to-galaxy:
-    jobs:
       - deploy:
           context: ansible-galaxy
           filters:
