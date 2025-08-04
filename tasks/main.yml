@@ -16,7 +16,7 @@
   when: ansible_os_family == "RedHat"
 
 - name: Install the default packages for Debian/Ubuntu System
-  yum:
+  apt:
     name: "{{ debian }}"
     state: latest
     update_cache: yes
