@@ -38,7 +38,7 @@
 # Timezone and Clock
 ################################################################################
 - name: Changing the timezone
-  timezone:
+  community.general.timezone:
     name: "{{ timezone }}"
 
 - name: Configuring NTP Client
@@ -54,8 +54,8 @@
   file:
     path: /etc/drift
     state: touch
-    owner: ntp
-    group: ntp
+    owner: root
+    group: root
     mode: 0640
   when: ansible_os_family == "RedHat"
 

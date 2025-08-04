@@ -1,8 +1,9 @@
 ---
 - hosts: localhost
   remote_user: root
+  become: true
   roles:
-   - role: project
+   - role: baseline
      hostname: warudo
      domain: hollowbastion.com
      timezone: America/Sao_Paulo

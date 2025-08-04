@@ -6,13 +6,18 @@ Baseline playbook to update and install all the packages needed for a server
 [![Build Status](https://circleci.com/gh/lucascbeyeler/baseline.svg?style=shield)](https://circleci.com/gh/lucascbeyeler/baseline)
 ![Linux Distro](https://img.shields.io/badge/platform-CentOS%20%7C%20Red%20Hat%20%7C%20Ubuntu-blue.svg)
 ![Branch](https://img.shields.io/badge/Branch-Master-green.svg)
-[![Ansible Version](https://img.shields.io/badge/Ansible-2.9.6.0-green.svg)](https://www.ansible.com/)
+[![Ansible Version](https://img.shields.io/badge/Ansible-2.18.0-green.svg)](https://www.ansible.com/)
 
 
 Requirements
 ------------
 
-* [Ansible](https://github.com/ansible/ansible) 2.9.6 or superior.
+* [Ansible](https://github.com/ansible/ansible) 2.18.0 or superior.
+* This playbook now depends on the `community.general` collection. You can install it using:
+  ```
+  ansible-galaxy collection install community.general
+  ```
+  More information can be found [here](https://galaxy.ansible.com/ui/repo/published/community/general/?extIdCarryOver=true&sc_cid=701f2000001OH7YAAW).
 
 
 Install
