@@ -1,0 +1,27 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  # no_log: "{{ molecule_no_log }}"
+  tasks:
+    - name: Set molecule_network_name
+      set_fact:
+        molecule_network_name: "molecule-default"
+    
+    - name: Create Docker network
+      community.docker.docker_network:
+        name: "{{ molecule_network_name }}"
+        state: present
+    
+    - name: Create Docker instances
+      community.docker.docker_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        state: started
+        command: "{{ item.command | default('sleep infinity') }}"
+        networks:
+          - name: "{{ molecule_network_name }}"
+        hostname: "{{ item.name }}"
+        # Add any other parameters from molecule.yml that need to be passed to docker_container
+      loop: "{{ molecule_yml.platforms }}"

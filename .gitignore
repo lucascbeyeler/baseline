@@ -1,3 +1,6 @@
 OLD
 .idea
 ansible.cfg
+.venv
+.gitignore
+.vagrant

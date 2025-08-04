@@ -1,0 +1,165 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Check if vim is installed
+      ansible.builtin.package_facts:
+        manager: auto
+      check_mode: true
+      when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+      register: package_facts_result
+
+    - name: Assert vim is installed
+      ansible.builtin.assert:
+        that:
+          - "'vim' in package_facts_result.ansible_facts.packages"
+      when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+
+    - name: Check if git is installed
+      ansible.builtin.package_facts:
+        manager: auto
+      check_mode: true
+      when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+      register: package_facts_result_git
+
+    - name: Assert git is installed
+      ansible.builtin.assert:
+        that:
+          - "'git' in package_facts_result_git.ansible_facts.packages"
+      when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+
+    - name: Check if htop is installed
+      ansible.builtin.package_facts:
+        manager: auto
+      check_mode: true
+      when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+      register: package_facts_result_htop
+
+    - name: Assert htop is installed
+      ansible.builtin.assert:
+        that:
+          - "'htop' in package_facts_result_htop.ansible_facts.packages"
+      when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+
+    - name: Check timezone
+      ansible.builtin.command: timedatectl status
+      changed_when: false
+      register: timedatectl_status
+
+    - name: Assert timezone is set
+      ansible.builtin.assert:
+        that:
+          - "'Time zone: Europe/Dublin' in timedatectl_status.stdout"
+
+    - name: Check ntp.conf existence (RedHat)
+      ansible.builtin.stat:
+        path: /etc/ntp.conf
+      register: ntp_conf_stat
+      when: ansible_os_family == "RedHat"
+
+    - name: Assert ntp.conf exists and has correct permissions (RedHat)
+      ansible.builtin.assert:
+        that:
+          - "ntp_conf_stat.stat.exists is defined and ntp_conf_stat.stat.exists"
+          - "ntp_conf_stat.stat.owner == 'root'"
+          - "ntp_conf_stat.stat.group == 'root'"
+          - "ntp_conf_stat.stat.mode == '0640'"
+      when: ansible_os_family == "RedHat"
+
+    - name: Check drift file existence (RedHat)
+      ansible.builtin.stat:
+        path: /etc/drift
+      register: drift_file_stat
+      when: ansible_os_family == "RedHat"
+
+    - name: Assert drift file exists and has correct permissions (RedHat)
+      ansible.builtin.assert:
+        that:
+          - "drift_file_stat.stat.exists is defined and drift_file_stat.stat.exists"
+          - "drift_file_stat.stat.owner == 'root'"
+          - "drift_file_stat.stat.group == 'root'"
+          - "drift_file_stat.stat.mode == '0640'"
+      when: ansible_os_family == "RedHat"
+
+    - name: Check hostname
+      ansible.builtin.command: hostnamectl status
+      changed_when: false
+      register: hostnamectl_status
+
+    - name: Assert hostname is set
+      ansible.builtin.assert:
+        that:
+          - "'Static hostname: test-host.example.com' in hostnamectl_status.stdout"
+
+    - name: Read /etc/hosts content
+      ansible.builtin.slurp:
+        src: /etc/hosts
+      register: hosts_content
+
+    - name: Assert /etc/hosts entry exists
+      ansible.builtin.assert:
+        that:
+          - "'127.0.0.1 test-host.example.com test-host' in hosts_content.content | b64decode"
+
+    - name: Check .hushlogin in /etc/skel
+      ansible.builtin.stat:
+        path: /etc/skel/.hushlogin
+      register: skel_hushlogin_stat
+
+    - name: Assert .hushlogin in /etc/skel exists
+      ansible.builtin.assert:
+        that:
+          - "skel_hushlogin_stat.stat.exists"
+
+    - name: Assert .hushlogin in /etc/skel permissions
+      ansible.builtin.assert:
+        that:
+          - "skel_hushlogin_stat.stat.exists and skel_hushlogin_stat.stat.owner == 'root'"
+          - "skel_hushlogin_stat.stat.exists and skel_hushlogin_stat.stat.group == 'root'"
+          - "skel_hushlogin_stat.stat.exists and skel_hushlogin_stat.stat.mode == '0600'"
+      when: skel_hushlogin_stat.stat.exists
+
+    - name: Check .hushlogin in root's home directory
+      ansible.builtin.stat:
+        path: /root/.hushlogin
+      register: root_hushlogin_stat
+
+    - name: Assert .hushlogin in root's home directory exists
+      ansible.builtin.assert:
+        that:
+          - "root_hushlogin_stat.stat.exists"
+
+    - name: Assert .hushlogin in root's home directory permissions
+      ansible.builtin.assert:
+        that:
+          - "root_hushlogin_stat.stat.exists and root_hushlogin_stat.stat.owner == 'root'"
+          - "root_hushlogin_stat.stat.exists and root_hushlogin_stat.stat.group == 'root'"
+          - "root_hushlogin_stat.stat.exists and root_hushlogin_stat.stat.mode == '0600'"
+      when: root_hushlogin_stat.stat.exists
+
+    - name: Check SSH port in sshd_config
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^Port 2222'
+        state: present
+      check_mode: true
+      register: ssh_port_entry
+
+    - name: Assert SSH port is set
+      ansible.builtin.assert:
+        that:
+          - "ssh_port_entry.found"
+
+    - name: Check SSH root login in sshd_config
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin no'
+        state: present
+      check_mode: true
+      register: ssh_root_login_entry
+
+    - name: Assert SSH root login is disabled
+      ansible.builtin.assert:
+        that:
+          - "ssh_root_login_entry.found"

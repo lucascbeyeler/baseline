@@ -1,0 +1,29 @@
+---
+driver:
+  name: docker
+platforms:
+  - name: ubuntu_jammy
+    image: ubuntu:jammy
+    pre_build_image: true
+  - name: rockylinux_9
+    image: rockylinux:9
+    pre_build_image: true
+provisioner:
+  name: ansible
+  options:
+    become: true
+  inventory:
+    group_vars:
+      all:
+        # Define variables used in tasks/main.yml here for testing
+        timezone: "Europe/Dublin"
+        hostname: "test-host"
+        domain: "example.com"
+        ssh_port: 2222
+        enable_hushlogin: true
+        centos: ["vim", "git"]
+        debian: ["vim", "git"]
+        multidist: ["htop"]
+  playbooks:
+    prepare: prepare.yml
+    converge: converge.yml

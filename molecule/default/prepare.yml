@@ -1,0 +1,23 @@
+---
+- name: Prepare
+  hosts: all
+  become: yes
+  become_method: su
+  become_user: root
+  gather_facts: false
+  tasks:
+    - name: Install Python 3
+      raw: apt update && apt install -y python3 || yum install python3 -y
+      become: yes
+      when: ansible_python_interpreter is not defined
+    - name: Install sudo
+      ansible.builtin.package:
+        name: sudo
+        state: present
+      become: true
+
+    - name: Install OpenSSH server for Debian/Ubuntu
+      ansible.builtin.package:
+        name: openssh-server
+        state: present
+      become: true

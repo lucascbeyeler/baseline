@@ -29,6 +29,13 @@
     update_cache: yes
   when: ansible_os_family == "RedHat"
 
+- name: Install EPEL release for RedHat System
+  ansible.builtin.yum:
+    name: epel-release
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "RedHat"
+
 - name: Install the default packages for the playbook
   package:
     name: "{{ multidist }}"
@@ -37,6 +44,20 @@
 #
 # Timezone and Clock
 ################################################################################
+- name: Install NTP package for Debian/Ubuntu
+  ansible.builtin.apt:
+    name: ntp
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "Debian"
+
+- name: Install Chrony package for CentOS/RedHat
+  ansible.builtin.yum:
+    name: chrony
+    state: latest
+    update_cache: yes
+  when: ansible_os_family == "RedHat"
+
 - name: Changing the timezone
   community.general.timezone:
     name: "{{ timezone }}"
@@ -71,6 +92,7 @@
     path: /etc/hosts
     line: '127.0.0.1 {{ hostname }}.{{ domain }} {{ hostname }}'
     state: present
+  when: ansible_virtualization_type != "docker"
 
 #
 # Enable services
@@ -81,6 +103,7 @@
     state: started
     enabled: yes
     name: "{{ 'ntp' if ansible_os_family == 'Debian' else 'chronyd' }}"
+  when: ansible_virtualization_type != "docker"
   ignore_errors: yes
 
 - name: Enabling all services - Upstart/System V way
@@ -93,23 +116,35 @@
 #
 # Creating .hushlogin inside all user's home
 ################################################################################
-- name: Creating .hushlogin inside the /etc/skel
-  file:
+- name: Check if .hushlogin exists in /etc/skel
+  ansible.builtin.stat:
+    path: /etc/skel/.hushlogin
+  register: skel_hushlogin_stat
+  when: enable_hushlogin is defined
+
+- name: Create .hushlogin inside the /etc/skel
+  ansible.builtin.file:
     path: /etc/skel/.hushlogin
     state: touch
     owner: root
     group: root
     mode: 0600
+  when: enable_hushlogin is defined and not skel_hushlogin_stat.stat.exists
+
+- name: Check if .hushlogin exists in users home
+  ansible.builtin.stat:
+    path: ~/.hushlogin
+  register: user_hushlogin_stat
   when: enable_hushlogin is defined
 
-- name: Creating .hushlogin inside users home
-  file:
+- name: Create .hushlogin inside users home
+  ansible.builtin.file:
     path: ~/.hushlogin
     state: touch
     owner: root
     group: root
     mode: 0600
-  when: enable_hushlogin is defined
+  when: enable_hushlogin is defined and not user_hushlogin_stat.stat.exists
 
 #
 # Editing SSH for more security
