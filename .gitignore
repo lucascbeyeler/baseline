@@ -2,5 +2,6 @@ OLD
 .idea
 ansible.cfg
 .venv
-.gitignore
+venv
 .vagrant
+.ansible

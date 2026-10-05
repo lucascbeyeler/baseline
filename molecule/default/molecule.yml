@@ -24,6 +24,9 @@ provisioner:
         centos: ["vim", "git"]
         debian: ["vim", "git"]
         multidist: ["htop"]
+        # Keep the test run short
+        baseline_full_upgrade: false
   playbooks:
     prepare: prepare.yml
     converge: converge.yml
+    verify: verify.yml

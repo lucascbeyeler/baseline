@@ -1,0 +1,12 @@
+---
+- name: Restart chrony
+  ansible.builtin.service:
+    name: "{{ baseline_chrony_service }}"
+    state: restarted
+  when: baseline_manage_services | bool
+
+- name: Reload sshd
+  ansible.builtin.service:
+    name: "{{ baseline_sshd_service }}"
+    state: reloaded
+  when: baseline_manage_services | bool

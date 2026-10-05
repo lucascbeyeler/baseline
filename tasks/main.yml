@@ -2,164 +2,124 @@
 #
 # Update packages
 ###############################################################################
+- name: Install EPEL release for RedHat System
+  ansible.builtin.dnf:
+    name: "{{ baseline_epel_package }}"
+    state: present
+  when:
+    - ansible_os_family == "RedHat"
+    - baseline_install_epel | bool
+
 - name: Updating all the packages for Ubuntu/Debian System
-  apt:
+  ansible.builtin.apt:
     upgrade: full
-    update_cache: yes
-  when: ansible_os_family == "Debian"
-
-- name: Install the default packages for CentOS/RedHat System
-  yum:
-    name: "{{ centos }}"
-    state: latest
-    update_cache: yes
-  when: ansible_os_family == "RedHat"
-
-- name: Install the default packages for Debian/Ubuntu System
-  apt:
-    name: "{{ debian }}"
-    state: latest
-    update_cache: yes
-  when: ansible_os_family == "Debian"
+    update_cache: true
+    cache_valid_time: 3600
+  when:
+    - ansible_os_family == "Debian"
+    - baseline_full_upgrade | bool
 
 - name: Updating all the packages for CentOS/RedHat System
-  yum:
+  ansible.builtin.dnf:
     name: "*"
-    state: latest
-    update_cache: yes
-  when: ansible_os_family == "RedHat"
-
-- name: Install EPEL release for RedHat System
-  ansible.builtin.yum:
-    name: epel-release
-    state: latest
-    update_cache: yes
-  when: ansible_os_family == "RedHat"
+    state: latest  # noqa package-latest
+    update_cache: true
+  when:
+    - ansible_os_family == "RedHat"
+    - baseline_full_upgrade | bool
 
 - name: Install the default packages for the playbook
-  package:
-    name: "{{ multidist }}"
-    state: latest
+  ansible.builtin.package:
+    name: "{{ multidist + (debian if ansible_os_family == 'Debian' else centos) + baseline_family_packages }}"
+    state: present
 
 #
 # Timezone and Clock
 ################################################################################
-- name: Install NTP package for Debian/Ubuntu
-  ansible.builtin.apt:
-    name: ntp
-    state: latest
-    update_cache: yes
-  when: ansible_os_family == "Debian"
-
-- name: Install Chrony package for CentOS/RedHat
-  ansible.builtin.yum:
-    name: chrony
-    state: latest
-    update_cache: yes
-  when: ansible_os_family == "RedHat"
-
 - name: Changing the timezone
   community.general.timezone:
     name: "{{ timezone }}"
 
-- name: Configuring NTP Client
-  copy:
-    src: ntp.conf
-    dest: /etc/ntp.conf
+- name: Configuring the Chrony NTP client
+  ansible.builtin.template:
+    src: chrony.conf.j2
+    dest: "{{ baseline_chrony_conf }}"
     owner: root
     group: root
-    mode: 0640
-  when: ansible_os_family == "RedHat"
-
-- name: Creating the drift file for the NTP service
-  file:
-    path: /etc/drift
-    state: touch
-    owner: root
-    group: root
-    mode: 0640
-  when: ansible_os_family == "RedHat"
+    mode: "0644"
+  notify: Restart chrony
 
 #
 # Hostname and Network
 ################################################################################
 - name: Changing the hostname
-  hostname:
-    name: '{{ hostname }}.{{ domain }}'
+  ansible.builtin.hostname:
+    name: "{{ hostname }}.{{ domain }}"
 
 - name: Including the hostname in /etc/hosts
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/hosts
-    line: '127.0.0.1 {{ hostname }}.{{ domain }} {{ hostname }}'
+    regexp: '^127\.0\.1\.1\s'
+    line: "127.0.1.1 {{ hostname }}.{{ domain }} {{ hostname }}"
     state: present
   when: ansible_virtualization_type != "docker"
 
 #
 # Enable services
 ################################################################################
-- name: Enabling all services - Systemd way
-  systemd:
-    daemon_reload: yes
+- name: Enabling the NTP service
+  ansible.builtin.service:
+    name: "{{ baseline_chrony_service }}"
     state: started
-    enabled: yes
-    name: "{{ 'ntp' if ansible_os_family == 'Debian' else 'chronyd' }}"
-  when: ansible_virtualization_type != "docker"
-  ignore_errors: yes
-
-- name: Enabling all services - Upstart/System V way
-  service:
-    name: "{{ 'ntp' if ansible_os_family == 'Debian' else 'chronyd' }}"
-    state: started
-    enabled: yes
-  ignore_errors: yes
+    enabled: true
+  when: baseline_manage_services | bool
 
 #
-# Creating .hushlogin inside all user's home
+# Creating .hushlogin for new users (/etc/skel) and for root
 ################################################################################
-- name: Check if .hushlogin exists in /etc/skel
-  ansible.builtin.stat:
-    path: /etc/skel/.hushlogin
-  register: skel_hushlogin_stat
-  when: enable_hushlogin is defined
-
-- name: Create .hushlogin inside the /etc/skel
+- name: Create .hushlogin
   ansible.builtin.file:
-    path: /etc/skel/.hushlogin
+    path: "{{ item }}"
     state: touch
     owner: root
     group: root
-    mode: 0600
-  when: enable_hushlogin is defined and not skel_hushlogin_stat.stat.exists
-
-- name: Check if .hushlogin exists in users home
-  ansible.builtin.stat:
-    path: ~/.hushlogin
-  register: user_hushlogin_stat
-  when: enable_hushlogin is defined
-
-- name: Create .hushlogin inside users home
-  ansible.builtin.file:
-    path: ~/.hushlogin
-    state: touch
-    owner: root
-    group: root
-    mode: 0600
-  when: enable_hushlogin is defined and not user_hushlogin_stat.stat.exists
+    mode: "0600"
+    access_time: preserve
+    modification_time: preserve
+  loop:
+    - /etc/skel/.hushlogin
+    - /root/.hushlogin
+  when: enable_hushlogin is none or enable_hushlogin | bool
 
 #
 # Editing SSH for more security
 ################################################################################
-- name: Modifing SSH's default port
-  lineinfile:
-    path: /etc/ssh/sshd_config
-    regexp: '^#Port 22'
-    line: 'Port {{ ssh_port }}'
+- name: Allow the custom SSH port in SELinux
+  community.general.seport:
+    ports: "{{ ssh_port }}"
+    proto: tcp
+    setype: ssh_port_t
     state: present
+  when:
+    - ssh_port is defined
+    - ansible_os_family == "RedHat"
+    - ansible_selinux.status | default('disabled') == "enabled"
+
+- name: Modifing SSH's default port
+  ansible.builtin.lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#?\s*Port\s'
+    line: "Port {{ ssh_port }}"
+    state: present
+    validate: /usr/sbin/sshd -t -f %s
   when: ssh_port is defined
+  notify: Reload sshd
 
 - name: Disable SSH root login
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
-    regexp: 'PermitRootLogin yes'
-    line: 'PermitRootLogin no'
+    regexp: '^#?\s*PermitRootLogin\s'
+    line: "PermitRootLogin {{ baseline_ssh_permit_root_login }}"
     state: present
+    validate: /usr/sbin/sshd -t -f %s
+  notify: Reload sshd

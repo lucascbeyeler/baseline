@@ -1,5 +1,30 @@
 ---
-# Default value for the vars informed to the playbook
-hostname: localhost
-domain: localdomain
-timezone: UTC
+# Per OS family values, not meant to be overridden
+baseline_os_vars:
+  Debian:
+    packages:
+      - chrony
+    chrony_conf: /etc/chrony/chrony.conf
+    chrony_service: chrony
+    sshd_service: ssh
+  RedHat:
+    packages:
+      - chrony
+      - policycoreutils-python-utils
+    chrony_conf: /etc/chrony.conf
+    chrony_service: chronyd
+    sshd_service: sshd
+
+baseline_family_packages: "{{ baseline_os_vars[ansible_os_family].packages }}"
+baseline_chrony_conf: "{{ baseline_os_vars[ansible_os_family].chrony_conf }}"
+baseline_chrony_service: "{{ baseline_os_vars[ansible_os_family].chrony_service }}"
+baseline_sshd_service: "{{ baseline_os_vars[ansible_os_family].sshd_service }}"
+
+# RHEL has no epel-release package in its repos, so it is installed from Fedora
+baseline_epel_package: >-
+  {{ 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-'
+     ~ ansible_distribution_major_version ~ '.noarch.rpm'
+     if ansible_distribution == 'RedHat' else 'epel-release' }}
+
+# Docker/Podman containers usually run without systemd, so services are not managed there
+baseline_manage_services: "{{ ansible_service_mgr == 'systemd' and ansible_virtualization_type not in ['docker', 'podman'] }}"
