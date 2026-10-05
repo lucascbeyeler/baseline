@@ -1,23 +1,25 @@
 ---
 - name: Prepare
   hosts: all
-  become: yes
-  become_method: su
-  become_user: root
   gather_facts: false
   tasks:
-    - name: Install Python 3
-      raw: apt update && apt install -y python3 || yum install python3 -y
-      become: yes
-      when: ansible_python_interpreter is not defined
-    - name: Install sudo
-      ansible.builtin.package:
-        name: sudo
-        state: present
-      become: true
+    - name: Install Python 3 and sudo
+      ansible.builtin.raw: (apt-get update && apt-get install -y python3 sudo) || dnf install -y python3 sudo
+      changed_when: true
 
-    - name: Install OpenSSH server for Debian/Ubuntu
+    - name: Install OpenSSH server
       ansible.builtin.package:
         name: openssh-server
         state: present
-      become: true
+
+    # sshd -t (used to validate sshd_config) needs this directory, which is
+    # normally created by systemd when the service starts
+    - name: Create the sshd privilege separation directory
+      ansible.builtin.file:
+        path: /run/sshd
+        state: directory
+        mode: "0755"
+
+    - name: Generate SSH host keys
+      ansible.builtin.command: ssh-keygen -A
+      changed_when: false

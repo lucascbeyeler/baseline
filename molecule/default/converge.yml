@@ -2,7 +2,5 @@
 - name: Converge
   hosts: all
   gather_facts: true
-  tasks:
-    - name: Include main tasks
-      ansible.builtin.include_tasks:
-        file: ../../tasks/main.yml
+  roles:
+    - role: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}"

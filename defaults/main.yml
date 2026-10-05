@@ -1,4 +1,15 @@
 ---
+# Server identity
+hostname: localhost
+domain: localdomain
+timezone: UTC
+
+# Run a full system upgrade (apt full-upgrade / dnf update *) on every run
+baseline_full_upgrade: true
+
+# Install EPEL on RedHat family systems
+baseline_install_epel: true
+
 # Default packages installed with baseline
 multidist:
   - vim
@@ -9,9 +20,24 @@ multidist:
   - ca-certificates
   - git
 
-debian:
-  - ntp
+# Extra packages installed only on Debian/Ubuntu
+debian: []
 
-centos:
-  - chrony
-  - epel-release
+# Extra packages installed only on CentOS/RedHat
+centos: []
+
+# NTP servers used by chrony
+baseline_ntp_servers:
+  - 0.pool.ntp.org
+  - 1.pool.ntp.org
+  - 2.pool.ntp.org
+  - 3.pool.ntp.org
+
+# Create .hushlogin in /etc/skel and root's home
+enable_hushlogin: false
+
+# Value for PermitRootLogin in sshd_config (yes, no, prohibit-password)
+baseline_ssh_permit_root_login: "no"
+
+# Uncomment to change the OpenSSH port
+# ssh_port: 22

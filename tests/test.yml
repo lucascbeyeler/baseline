@@ -1,9 +1,10 @@
 ---
-- hosts: localhost
+- name: Test the baseline role
+  hosts: localhost
   remote_user: root
   become: true
   roles:
-   - role: project
-     hostname: warudo
-     domain: hollowbastion.com
-     timezone: America/Sao_Paulo
+    - role: project
+      hostname: warudo
+      domain: hollowbastion.com
+      timezone: America/Sao_Paulo

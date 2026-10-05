@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+{% for server in baseline_ntp_servers %}
+server {{ server }} iburst
+{% endfor %}
+
+# Record the rate at which the system clock gains/losses time
+driftfile /var/lib/chrony/{{ 'chrony.drift' if ansible_os_family == 'Debian' else 'drift' }}
+
+# Step the clock on the first updates if the offset is larger than 1 second
+makestep 1.0 3
+
+# Keep the hardware clock in sync
+rtcsync
+
+# Disable the remote command port (chronyc keeps working via the local socket)
+cmdport 0
+
+logdir /var/log/chrony
