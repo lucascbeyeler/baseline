@@ -3,6 +3,8 @@ Baseline
 
 Baseline playbook to update and install all the packages needed for a server
 
+It is the server preparation used by [lucascbeyeler.zimbra](https://github.com/lucascbeyeler/zimbra), which supports the latest version of Zimbra (10.1), on the distributions Zimbra 10.1 runs on (Ubuntu 22.04 and Rocky Linux / Red Hat 8 and 9).
+
 [![Build Status](https://circleci.com/gh/lucascbeyeler/baseline.svg?style=shield)](https://circleci.com/gh/lucascbeyeler/baseline)
 ![CentOS / Red Hat](https://img.shields.io/badge/platform-CentOS%20%7C%20Red%20Hat-green.svg)
 ![Ubuntu](https://img.shields.io/badge/platform-Ubuntu-green.svg)
@@ -30,7 +32,7 @@ ansible-galaxy install lucascbeyeler.baseline
 
 Update
 --------------
-When a new version of ansible-commons is released, you will need to run the install process again, but with the "-f" or "--force" parameter.
+When a new version of baseline is released, you will need to run the install process again, but with the "-f" or "--force" parameter.
 
 ```
 ansible-galaxy install -f lucascbeyeler.baseline
@@ -40,12 +42,14 @@ Features
 --------------
 
 * Update the system and install some basic packages (like vim, unzip, and ca-certificates), plus EPEL on RedHat;
-* Configure chrony as the NTP client and change the timezone to what you want;
-* Change the hostname and update the /etc/hosts to include 127.0.1.1 to answer when the hostname is resolved;
+* Refresh the APT cache before installing packages, even when the full upgrade is turned off, so it works on fresh Ubuntu hosts and images with an empty cache;
+* Configure chrony as the NTP client (on Ubuntu and RedHat) and change the timezone to what you want;
+* Change the hostname and manage a single 127.0.1.1 line in /etc/hosts to answer when the hostname is resolved;
 * Enable the NTP service to start during the boot (SystemD);
-* Including hushlogin in /etc/skel (new users) and root's home to hide the MOTD;
+* Including hushlogin in /etc/skel (new users) and root's home to hide the MOTD (only when `enable_hushlogin` is `true`);
 * Change the SSH default port (also allowed in SELinux when it is enabled);
-* Disable Root login throught SSH.
+* Disable Root login through SSH;
+* Safe to run many times: nothing is changed when the server already matches the configuration.
 
 Every change to the SSH configuration is validated with `sshd -t` before it is written, and sshd is reloaded afterwards.
 When `/etc/ssh/sshd_config` includes `/etc/ssh/sshd_config.d/*.conf` (Ubuntu 22.04+, RHEL 9), `PermitRootLogin` is written to `/etc/ssh/sshd_config.d/00-baseline.conf`, so drop-ins from the installer or the cloud image (like RHEL's `01-permitrootlogin.conf`) cannot override it.
@@ -58,6 +62,8 @@ Tested Platforms
 This playbook has been tested against:
 * Rocky Linux 9
 * Ubuntu Jammy Jellyfish
+
+Both are tested with Molecule in CircleCI on every push.
 
 
 Role Variables
@@ -78,8 +84,6 @@ Role Variables
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
 ```
 - hosts: all
   become: yes
@@ -92,6 +96,11 @@ Including an example of how to use your role (for instance, with variables passe
        enable_hushlogin: true
        ssh_port: 8080
 ```
+
+Testing
+-------
+
+The role has unit tests (`tests/unit/main.yml`), which render the per-distribution variables and the chrony template with mocked facts, and a Molecule scenario that runs the role in Ubuntu Jammy and Rocky Linux 9 containers. CircleCI runs ansible-lint, a syntax check, the unit tests and Molecule. See [Development.md](Development.md) to run them on your machine.
 
 License
 -------
