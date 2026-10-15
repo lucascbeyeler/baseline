@@ -64,7 +64,8 @@ ansible-playbook tests/unit/main.yml
     From the root of the role, install the collections and run the `molecule test` command.
 
     ```bash
-    ansible-galaxy collection install -r requirements.yml community.docker
+    ansible-galaxy collection install -r requirements.yml
+    ansible-galaxy collection install community.docker
     molecule test
     ```
     This command will perform the following steps: `destroy`, `create`, `prepare`, `converge`, `idempotence`, `lint`, and `verify`.
