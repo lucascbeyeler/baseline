@@ -17,6 +17,23 @@ jobs:
       - run:
           name: Syntax check
           command: ansible-playbook -i tests/inventory tests/test.yml --syntax-check
+      - run:
+          name: Unit tests
+          command: ansible-playbook tests/unit/main.yml
+  molecule:
+    machine:
+      image: ubuntu-2404:current
+    steps:
+      - checkout
+      - run:
+          name: Run Molecule
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+            ansible-galaxy collection install -r requirements.yml
+            ansible-galaxy collection install community.docker
+            molecule test
   ansible-galaxy:
     docker:
       - image: cimg/python:3.12
@@ -33,9 +50,11 @@ workflows:
   build-and-test:
     jobs:
       - lint
+      - molecule
       - ansible-galaxy:
           requires:
             - lint
+            - molecule
           filters:
             branches:
               only: master

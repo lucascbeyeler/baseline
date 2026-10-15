@@ -7,6 +7,9 @@
       ansible.builtin.raw: (apt-get update && apt-get install -y python3 sudo) || dnf install -y python3 sudo
       changed_when: true
 
+    - name: Gather facts
+      ansible.builtin.setup:
+
     - name: Install OpenSSH server
       ansible.builtin.package:
         name: openssh-server
@@ -23,3 +26,18 @@
     - name: Generate SSH host keys
       ansible.builtin.command: ssh-keygen -A
       changed_when: false
+
+    # Like RHEL's installer does when root login is allowed, a drop-in that
+    # would override PermitRootLogin in sshd_config
+    - name: Create a drop-in that allows root login
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/01-permitrootlogin.conf
+        content: "PermitRootLogin yes\n"
+        mode: "0600"
+
+    # Like a fresh image: the role must refresh the APT cache itself when the
+    # full upgrade is off
+    - name: Empty the APT cache
+      ansible.builtin.shell: rm -rf /var/lib/apt/lists/* /var/cache/apt/*.bin && touch -d '2 days ago' /var/lib/apt/lists
+      changed_when: true
+      when: ansible_os_family == "Debian"

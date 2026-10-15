@@ -28,6 +28,15 @@
     - ansible_os_family == "RedHat"
     - baseline_full_upgrade | bool
 
+# The full upgrade above refreshes the cache, but it can be turned off
+- name: Updating the APT cache for Ubuntu/Debian System
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when:
+    - ansible_os_family == "Debian"
+    - not baseline_full_upgrade | bool
+
 - name: Install the default packages for the playbook
   ansible.builtin.package:
     name: "{{ multidist + (debian if ansible_os_family == 'Debian' else centos) + baseline_family_packages }}"
@@ -55,6 +64,20 @@
 - name: Changing the hostname
   ansible.builtin.hostname:
     name: "{{ hostname }}.{{ domain }}"
+  when: ansible_virtualization_type not in ["docker", "podman"]
+
+# Without a running systemd the hostname module does not support every
+# distribution (like Rocky Linux), so containers only get the name used at boot
+- name: Changing the hostname (containers)
+  ansible.builtin.copy:
+    content: "{{ hostname }}.{{ domain }}\n"
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: "0644"
+    # /etc/hostname is a bind mount in containers
+    unsafe_writes: true
+  when: ansible_virtualization_type in ["docker", "podman"]
 
 - name: Including the hostname in /etc/hosts
   ansible.builtin.lineinfile:
@@ -115,6 +138,30 @@
   when: ssh_port is defined
   notify: Reload sshd
 
+# sshd keeps the first value it reads, and Ubuntu 22.04+ and RHEL 9 include
+# /etc/ssh/sshd_config.d/*.conf at the top of sshd_config. A drop-in there
+# (like RHEL's 01-permitrootlogin.conf) would win over sshd_config, so the
+# setting goes in a drop-in that sorts before the others.
+- name: Check if sshd_config includes sshd_config.d
+  ansible.builtin.command: grep -Eq '^\s*Include\s+/etc/ssh/sshd_config\.d/' /etc/ssh/sshd_config
+  register: baseline_sshd_include
+  changed_when: false
+  failed_when: baseline_sshd_include.rc > 1
+  check_mode: false
+
+- name: Disable SSH root login (drop-in)
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-baseline.conf
+    content: |
+      # Managed by Ansible (lucascbeyeler.baseline)
+      PermitRootLogin {{ baseline_ssh_permit_root_login }}
+    owner: root
+    group: root
+    mode: "0600"
+    validate: /usr/sbin/sshd -t -f %s
+  when: baseline_sshd_include.rc == 0
+  notify: Reload sshd
+
 - name: Disable SSH root login
   ansible.builtin.lineinfile:
     path: /etc/ssh/sshd_config
@@ -122,4 +169,5 @@
     line: "PermitRootLogin {{ baseline_ssh_permit_root_login }}"
     state: present
     validate: /usr/sbin/sshd -t -f %s
+  when: baseline_sshd_include.rc != 0
   notify: Reload sshd

@@ -17,16 +17,23 @@
           - "'htop' in ansible_facts.packages"
           - "'chrony' in ansible_facts.packages"
 
-    # Containers have no systemd, so timedatectl/hostnamectl are not usable
+    # Containers have no systemd, so timedatectl/hostnamectl are not usable.
+    # Without them /etc/localtime is a link to the zone on Ubuntu and a copy
+    # of it on Rocky Linux, so compare the content.
     - name: Check timezone
       ansible.builtin.stat:
-        path: /etc/localtime
+        path: "{{ item }}"
+        follow: true
+        checksum_algorithm: sha256
       register: localtime_stat
+      loop:
+        - /etc/localtime
+        - /usr/share/zoneinfo/Europe/Dublin
 
     - name: Assert timezone is set
       ansible.builtin.assert:
         that:
-          - localtime_stat.stat.lnk_source is search('Europe/Dublin$')
+          - localtime_stat.results[0].stat.checksum == localtime_stat.results[1].stat.checksum
 
     - name: Check chrony configuration
       ansible.builtin.slurp:
