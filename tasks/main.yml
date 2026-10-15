@@ -64,6 +64,20 @@
 - name: Changing the hostname
   ansible.builtin.hostname:
     name: "{{ hostname }}.{{ domain }}"
+  when: ansible_virtualization_type not in ["docker", "podman"]
+
+# Without a running systemd the hostname module does not support every
+# distribution (like Rocky Linux), so containers only get the name used at boot
+- name: Changing the hostname (containers)
+  ansible.builtin.copy:
+    content: "{{ hostname }}.{{ domain }}\n"
+    dest: /etc/hostname
+    owner: root
+    group: root
+    mode: "0644"
+    # /etc/hostname is a bind mount in containers
+    unsafe_writes: true
+  when: ansible_virtualization_type in ["docker", "podman"]
 
 - name: Including the hostname in /etc/hosts
   ansible.builtin.lineinfile:
