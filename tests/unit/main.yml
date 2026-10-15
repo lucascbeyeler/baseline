@@ -1,0 +1,111 @@
+---
+# Unit tests for the role's variables and templates. They render the role's
+# files with mocked facts, so they need no target host, root or containers:
+#
+#   ansible-playbook tests/unit/main.yml
+#
+- name: Unit tests for the baseline role
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    role_root: "{{ playbook_dir }}/../.."
+    chrony_template: "{{ role_root }}/templates/chrony.conf.j2"
+  tasks:
+    - name: Load the role defaults and vars
+      ansible.builtin.include_vars:
+        file: "{{ item }}"
+      loop:
+        - "{{ role_root }}/defaults/main.yml"
+        - "{{ role_root }}/vars/main.yml"
+
+    - name: Debian family values
+      vars:
+        ansible_os_family: Debian
+      ansible.builtin.assert:
+        that:
+          - baseline_family_packages == ['chrony']
+          - baseline_chrony_conf == '/etc/chrony/chrony.conf'
+          - baseline_chrony_service == 'chrony'
+          - baseline_sshd_service == 'ssh'
+
+    - name: RedHat family values
+      vars:
+        ansible_os_family: RedHat
+      ansible.builtin.assert:
+        that:
+          - baseline_family_packages == ['chrony', 'policycoreutils-python-utils']
+          - baseline_chrony_conf == '/etc/chrony.conf'
+          - baseline_chrony_service == 'chronyd'
+          - baseline_sshd_service == 'sshd'
+
+    - name: EPEL comes from the distribution repos on RHEL clones
+      vars:
+        ansible_distribution: Rocky
+        ansible_distribution_major_version: "9"
+      ansible.builtin.assert:
+        that:
+          - baseline_epel_package == 'epel-release'
+
+    - name: EPEL comes from Fedora on RHEL
+      vars:
+        ansible_distribution: RedHat
+        ansible_distribution_major_version: "9"
+      ansible.builtin.assert:
+        that:
+          - baseline_epel_package == 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm'
+
+    - name: Services are managed on systemd hosts only
+      ansible.builtin.assert:
+        that:
+          - baseline_manage_services | bool == item.expected
+        quiet: true
+      vars:
+        ansible_service_mgr: "{{ item.service_mgr }}"
+        ansible_virtualization_type: "{{ item.virtualization }}"
+      loop:
+        - {service_mgr: systemd, virtualization: kvm, expected: true}
+        - {service_mgr: systemd, virtualization: docker, expected: false}
+        - {service_mgr: systemd, virtualization: podman, expected: false}
+        - {service_mgr: sysvinit, virtualization: kvm, expected: false}
+      loop_control:
+        label: "{{ item.service_mgr }}/{{ item.virtualization }}"
+
+    - name: Render chrony.conf for Debian
+      ansible.builtin.set_fact:
+        chrony_debian: "{{ lookup('ansible.builtin.template', chrony_template, template_vars=template_vars) }}"
+      vars:
+        ansible_os_family: Debian
+        # include_vars wins over task vars, so overrides go through template_vars
+        template_vars:
+          baseline_ntp_servers: [ntp1.example.com, ntp2.example.com]
+
+    - name: Check chrony.conf for Debian
+      ansible.builtin.assert:
+        that:
+          - chrony_debian is search('^server ntp1\.example\.com iburst$', multiline=true)
+          - chrony_debian is search('^server ntp2\.example\.com iburst$', multiline=true)
+          - chrony_debian is not search('pool\.ntp\.org')
+          - chrony_debian is search('^driftfile /var/lib/chrony/chrony\.drift$', multiline=true)
+          - chrony_debian is search('^cmdport 0$', multiline=true)
+
+    - name: Render chrony.conf for RedHat
+      ansible.builtin.set_fact:
+        chrony_redhat: "{{ lookup('ansible.builtin.template', chrony_template) }}"
+      vars:
+        ansible_os_family: RedHat
+
+    - name: Check chrony.conf for RedHat
+      ansible.builtin.assert:
+        that:
+          - chrony_redhat is search('^driftfile /var/lib/chrony/drift$', multiline=true)
+          # The default servers
+          - chrony_redhat is search('^server 0\.pool\.ntp\.org iburst$', multiline=true)
+          - chrony_redhat is search('^server 3\.pool\.ntp\.org iburst$', multiline=true)
+
+    - name: Defaults keep the server safe
+      ansible.builtin.assert:
+        that:
+          - baseline_ssh_permit_root_login == 'no'
+          - not enable_hushlogin | bool
+          - ssh_port is not defined

@@ -47,7 +47,8 @@ Features
 * Change the SSH default port (also allowed in SELinux when it is enabled);
 * Disable Root login throught SSH.
 
-Every change to `/etc/ssh/sshd_config` is validated with `sshd -t` before it is written, and sshd is reloaded afterwards.
+Every change to the SSH configuration is validated with `sshd -t` before it is written, and sshd is reloaded afterwards.
+When `/etc/ssh/sshd_config` includes `/etc/ssh/sshd_config.d/*.conf` (Ubuntu 22.04+, RHEL 9), `PermitRootLogin` is written to `/etc/ssh/sshd_config.d/00-baseline.conf`, so drop-ins from the installer or the cloud image (like RHEL's `01-permitrootlogin.conf`) cannot override it.
 
 > **Warning:** when changing `ssh_port`, make sure the new port is open in your firewall (firewalld, ufw, security groups) and update `ansible_port` for the next runs, otherwise you will lose SSH access.
 

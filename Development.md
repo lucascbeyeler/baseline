@@ -26,7 +26,15 @@ It is recommended to use a Python virtual environment (`venv`) to manage depende
     pip install -r requirements.txt
     ```
 
-## 2. Run Molecule Tests
+## 2. Run the Unit Tests
+
+The unit tests render the role's variables and templates with mocked facts for each distribution. They run on your machine and need neither Docker nor root:
+
+```bash
+ansible-playbook tests/unit/main.yml
+```
+
+## 3. Run Molecule Tests
 
 `Molecule` is used for testing Ansible roles. Before running `molecule` tests, ensure your Docker environment is correctly configured.
 
@@ -53,10 +61,10 @@ It is recommended to use a Python virtual environment (`venv`) to manage depende
     *Note: Adjust the path to `docker.sock` based on your `docker context ls` output.*
 
 3.  **Run Molecule tests:**
-    Navigate to the `molecule/default` directory (or the specific scenario you want to test) and run the `molecule test` command.
+    From the root of the role, install the collections and run the `molecule test` command.
 
     ```bash
-    cd molecule/default
+    ansible-galaxy collection install -r requirements.yml community.docker
     molecule test
     ```
     This command will perform the following steps: `destroy`, `create`, `prepare`, `converge`, `idempotence`, `lint`, and `verify`.
