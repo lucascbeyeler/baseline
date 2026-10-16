@@ -27,6 +27,8 @@ jobs:
       - checkout
       - run:
           name: Run Molecule
+          # Package installs print nothing until they finish
+          no_output_timeout: 20m
           command: |
             python3 -m venv venv
             . venv/bin/activate
