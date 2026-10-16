@@ -3,9 +3,19 @@
   hosts: all
   gather_facts: false
   tasks:
+    # raw prints nothing until it ends, so a stalled download would run until
+    # CI kills the job without a message. The timeouts turn it into an error.
     - name: Install Python 3 and sudo
-      ansible.builtin.raw: (apt-get update && apt-get install -y python3 sudo) || dnf install -y python3 sudo
+      ansible.builtin.raw: >-
+        if command -v apt-get >/dev/null; then
+        export DEBIAN_FRONTEND=noninteractive;
+        apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 update &&
+        apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 install -y python3 sudo;
+        else
+        dnf --setopt=retries=3 --setopt=timeout=30 install -y python3 sudo;
+        fi
       changed_when: true
+      timeout: 420
 
     - name: Gather facts
       ansible.builtin.setup:
