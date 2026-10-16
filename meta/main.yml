@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  namespace: lucasbeyeler
+  namespace: lucascbeyeler
   author: Lucas Costa Beyeler
   role_name: baseline
   description: Baseline playbook to update and install all the packages needed for a server
