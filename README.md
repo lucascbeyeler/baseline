@@ -44,7 +44,7 @@ Features
 * Update the system and install some basic packages (like vim, unzip, and ca-certificates), plus EPEL on RedHat;
 * Refresh the APT cache before installing packages, even when the full upgrade is turned off, so it works on fresh Ubuntu hosts and images with an empty cache;
 * Configure chrony as the NTP client (on Ubuntu and RedHat) and change the timezone to what you want;
-* Change the hostname and manage a single 127.0.1.1 line in /etc/hosts to answer when the hostname is resolved;
+* Change the hostname and manage a single line in /etc/hosts (127.0.1.1 by default, or **baseline_hosts_ip**) to answer when the hostname is resolved;
 * Enable the NTP service to start during the boot (SystemD);
 * Including hushlogin in /etc/skel (new users) and root's home to hide the MOTD (only when `enable_hushlogin` is `true`);
 * Change the SSH default port (also allowed in SELinux when it is enabled);
@@ -72,6 +72,7 @@ Role Variables
 * **hostname:** set the hostname of your server **WITHOUT** the domain;
 * **domain:** set the domain for the server and the primary domain for your server;
 * **timezone:** inform the timezone the playbook should set in your server;
+* **baseline_hosts_ip:** address the hostname resolves to in /etc/hosts (default `127.0.1.1`). Set it to the server's own address when installing Zimbra;
 * **enable_hushlogin:** set to `true` to enable hush login (default `false`);
 * **ssh_port:** define the default port for OpenSSH Server (unset keeps the current port);
 * **baseline_ssh_permit_root_login:** value for `PermitRootLogin` (default `no`);

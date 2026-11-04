@@ -82,8 +82,8 @@
 - name: Including the hostname in /etc/hosts
   ansible.builtin.lineinfile:
     path: /etc/hosts
-    regexp: '^127\.0\.1\.1\s'
-    line: "127.0.1.1 {{ hostname }}.{{ domain }} {{ hostname }}"
+    regexp: '^(127\.0\.1\.1|{{ baseline_hosts_ip | regex_escape }})\s'
+    line: "{{ baseline_hosts_ip }} {{ hostname }}.{{ domain }} {{ hostname }}"
     state: present
   when: ansible_virtualization_type != "docker"
 
