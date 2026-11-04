@@ -13,7 +13,7 @@ have run first, but it is generic and can be used before any role.
 * Package updates and a base package set;
 * EPEL on the Red Hat family;
 * Timezone and NTP (chrony);
-* Hostname and its `127.0.1.1` line in `/etc/hosts`;
+* Hostname and its line in `/etc/hosts`;
 * `.hushlogin` for root and new users;
 * OpenSSH port and `PermitRootLogin`.
 
@@ -105,8 +105,9 @@ Tasks run in this order (`tasks/main.yml`):
 7. **Hostname** set to the FQDN with `ansible.builtin.hostname`; inside
    Docker/Podman `/etc/hostname` is written instead (with `unsafe_writes`,
    because it is a bind mount).
-8. **`/etc/hosts`**: a single line `127.0.1.1 <fqdn> <hostname>`, replacing
-   any existing `127.0.1.1` line. Skipped in Docker, which manages the file.
+8. **`/etc/hosts`**: a single line `<baseline_hosts_ip> <fqdn> <hostname>`
+   (default `127.0.1.1`), replacing any existing line for that address or
+   `127.0.1.1`. Skipped in Docker, which manages the file.
 9. **chrony service** started and enabled (when `baseline_manage_services`).
 10. **`.hushlogin`** in `/etc/skel` and `/root` (`root:root 0600`, times
     preserved), when `enable_hushlogin` is true.

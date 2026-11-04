@@ -3,6 +3,9 @@
 hostname: localhost
 domain: localdomain
 timezone: UTC
+# Address the hostname resolves to in /etc/hosts. Set it to the server's own
+# address for services that must not resolve their name to loopback, like Zimbra
+baseline_hosts_ip: 127.0.1.1
 
 # Run a full system upgrade (apt full-upgrade / dnf update *) on every run
 baseline_full_upgrade: true
